@@ -8,23 +8,42 @@ namespace HostBuilder_Test
     {
         static async Task Main(string[] args)
         {
+            await CreateHostApplicationBuilderAsync(args);
+            await CreateHostBuilderAsync(args);
+
+            Console.ReadLine();
+        }
+
+        static async Task CreateHostApplicationBuilderAsync(string[] args)
+        {
+            var builder = Host.CreateApplicationBuilder(args);
+            builder.Services.AddTransient<TransientDisposable>();
+            builder.Services.AddScoped<ScopedDisposable>();
+            builder.Services.AddSingleton<SingletonDisposable>();
+            builder.Services.AddHostedService<ExampleHostedService>();
+
+            var services = builder.Services.ToArray();
+            var configs=builder.Configuration.Sources.ToArray();
+            var loggings=builder.Logging.Services.ToArray();
+            using IHost host = builder.Build();
+
+            await host.RunAsync();
+        }
+
+        static async Task CreateHostBuilderAsync(string[] args)
+        {
             var builder = Host.CreateDefaultBuilder(args);
             builder.ConfigureServices((context, services) => services.AddTransient<TransientDisposable>());
             builder.ConfigureServices((context, services) => services.AddScoped<ScopedDisposable>());
             builder.ConfigureServices((context, services) => services.AddSingleton<SingletonDisposable>());
             builder.ConfigureServices((context, services) => services.AddHostedService<ExampleHostedService>());
 
+            //var services = builder..ToArray();
+            //var configs = builder.Configuration.Sources.ToArray();
+            //var loggings = builder.Logging.Services.ToArray();
             using IHost host = builder.Build();
 
-            //ExemplifyDisposableScoping(host.Services, "Scope 1");
-            //Console.WriteLine();
-
-            //ExemplifyDisposableScoping(host.Services, "Scope 2");
-            //Console.WriteLine();
-
             await host.RunAsync();
-
-            Console.ReadLine();
         }
 
         public sealed class TransientDisposable : IDisposable
