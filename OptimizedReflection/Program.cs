@@ -2,6 +2,9 @@
 using System.Linq.Expressions;
 using System.Reflection.Emit;
 using System.Reflection;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace OptimizedReflection
 {
@@ -18,6 +21,7 @@ namespace OptimizedReflection
             double[] expressionElapsed = new double[count_1];
             double[] expressionElapsed_1 = new double[count_1];
             double[] emitElapsed = new double[count_1];
+            double[] emitElapsed_1 = new double[count_1];
 
             int[] aparams = new int[count_1];
             double[] bparams = new double[count_1];
@@ -157,6 +161,31 @@ namespace OptimizedReflection
             Console.WriteLine($"最长耗时:{emitElapsed.Max()}ms,首次耗时:{emitElapsed.First()}ms");
             Console.WriteLine($"最短耗时:{emitElapsed.Min()}ms");
 
+            Console.WriteLine("***EMIT绑定设值设置耗时统计***");
+            aInfo = new AInfo();
+            for (int i = 0; i < count_1; i++)
+            {
+                var aparam = aparams[i];
+                var bparam = bparams[i];
+                var cparam = cparams[i];
+
+                stopwatch.Restart();
+                for (int ii = 0; ii < count_2; ii++)
+                {
+                    aInfo.SetParamValue_EMIT_1(nameof(AInfo.AParam), aparam);
+                    aInfo.SetParamValue_EMIT_1(nameof(AInfo.BParam), bparam);
+                    aInfo.SetParamValue_EMIT_1(nameof(AInfo.CParam), cparam);
+                }
+                stopwatch.Stop();
+                if (aInfo.AParam != aparam || aInfo.BParam != bparam || aInfo.CParam != cparam)
+                    throw new Exception("设值错误");
+                emitElapsed_1[i] = stopwatch.Elapsed.TotalMilliseconds;
+            }
+            Console.WriteLine($"总耗时:{emitElapsed_1.Sum()}ms");
+            Console.WriteLine($"平均耗时:{emitElapsed_1.Average()} ms");
+            Console.WriteLine($"最长耗时:{emitElapsed_1.Max()}ms,首次耗时:{emitElapsed_1.First()}ms");
+            Console.WriteLine($"最短耗时:{emitElapsed_1.Min()}ms");
+
             Console.ReadLine();
         }
         class AInfo
@@ -210,7 +239,7 @@ namespace OptimizedReflection
                 cache_expression_delegates[a](this, value);
             }
 
-            //使用字典缓存表达式树生成的动态方法，使用委托基类作为Value值缓存
+            //使用字典缓存表达式树生成的动态方法，使用委托基类作为Value值缓存,设置时转换委托类型，避免拆装箱
             Dictionary<string, Delegate> cache_expressions_NoBox_delegates = new Dictionary<string, Delegate>();
             public void SetParamValue_Expression_1<T>(string a, T value)
             {
@@ -239,18 +268,48 @@ namespace OptimizedReflection
                     var type_this = this.GetType();
                     if (type_this == null)
                         return;
+                    var methodInfo = type_this.GetProperty(a)?.GetSetMethod();
+                    if (methodInfo == null)
+                        return;
                     var type_obj = typeof(object);
                     var type_value = typeof(T);
-                    var dynamicMethod = new DynamicMethod($"Set{a}", typeof(void), new Type[] { type_this, type_value }, typeof(AInfo).Module);
+                    var dynamicMethod = new DynamicMethod($"Set{a}", typeof(void), new Type[] { type_this, type_value }, typeof(AInfo));//.NET Framework中使用DynamicMethod(String, Type, Type[], Module)指定模块会报错
                     var il = dynamicMethod.GetILGenerator();
                     il.Emit(OpCodes.Ldarg_0);
                     il.Emit(OpCodes.Ldarg_1);
-                    il.Emit(OpCodes.Call, typeof(AInfo).GetProperty(a).GetSetMethod());
+                    il.Emit(OpCodes.Call, methodInfo);
                     il.Emit(OpCodes.Ret);
-                    var lambda = (Action<AInfo, T>)dynamicMethod.CreateDelegate(typeof(Action<AInfo, T>));
+                    var lambda = dynamicMethod.CreateDelegate<Action<AInfo, T>>();//此泛型方法仅在.NET 5及以上版本提供，更低版本需使用MethodInfo.CreateDelegate(Type)及其重载。
                     cache_emit_delegates[a] = lambda;
                 }
                 ((Action<AInfo, T>)cache_emit_delegates[a])(this, value);
+            }
+
+            //使用字典缓存EMIT生成的动态方法
+            Dictionary<string, Delegate> cache_emit_bing_delegates = new Dictionary<string, Delegate>();
+            public void SetParamValue_EMIT_1<T>(string a, T value)
+            {
+                if (!cache_emit_bing_delegates.ContainsKey(a))
+                {
+                    var type_this = this.GetType();
+                    if (type_this == null)
+                        return;
+                    var methodInfo = type_this.GetProperty(a)?.GetSetMethod();
+                    if (methodInfo == null)
+                        return;
+                    var type_obj = typeof(object);
+                    var type_value = typeof(T);
+                    var dynamicMethod = new DynamicMethod($"Set{a}", typeof(void), new Type[] { type_this, type_value }, typeof(AInfo));//.NET Framework中使用DynamicMethod(String, Type, Type[], Module)指定模块会报错
+                    var il = dynamicMethod.GetILGenerator();
+                    il.Emit(OpCodes.Ldarg_0);
+                    il.Emit(OpCodes.Ldarg_1);
+                    il.Emit(OpCodes.Call, methodInfo);
+                    il.Emit(OpCodes.Ret);
+                    //将创建的动态方法绑定到对象
+                    var lambda = dynamicMethod.CreateDelegate<Action<T>>(this);//此泛型方法仅在.NET 5及以上版本提供，更低版本需使用MethodInfo.CreateDelegate(Type,Object)及其重载。
+                    cache_emit_bing_delegates[a] = lambda;
+                }
+                ((Action<T>)cache_emit_bing_delegates[a])(value);
             }
         }
     }
