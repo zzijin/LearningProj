@@ -19,7 +19,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApi_Test", "WebApi_Test\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OptimizedReflection", "OptimizedReflection\OptimizedReflection.csproj", "{673FBF9F-2909-4F44-8533-5DF54D08EFEF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseTest", "BaseTest\BaseTest.csproj", "{CC154CFE-FFB4-4307-9F32-1086809928A6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaseTest", "BaseTest\BaseTest.csproj", "{CC154CFE-FFB4-4307-9F32-1086809928A6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoParseHeader_Test", "AutoParseHeader_Test\AutoParseHeader_Test.csproj", "{91D7C8A0-164A-49B9-BF81-D08AEA28167A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +65,10 @@ Global
 		{CC154CFE-FFB4-4307-9F32-1086809928A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CC154CFE-FFB4-4307-9F32-1086809928A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CC154CFE-FFB4-4307-9F32-1086809928A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{91D7C8A0-164A-49B9-BF81-D08AEA28167A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91D7C8A0-164A-49B9-BF81-D08AEA28167A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91D7C8A0-164A-49B9-BF81-D08AEA28167A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91D7C8A0-164A-49B9-BF81-D08AEA28167A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
