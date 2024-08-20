@@ -1,4 +1,6 @@
 
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace WebApi_Test
@@ -16,6 +18,10 @@ namespace WebApi_Test
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddMemoryCache();
+            builder.Services.Configure<MvcOptions>(opt =>
+            {
+                opt.Filters.Add<AsyncExceptionFilter>();
+            });
 
             var app = builder.Build();
 
@@ -46,6 +52,8 @@ namespace WebApi_Test
                 await next.Invoke();
             });
 
+
+
             app.Run();
         }
     }
@@ -74,6 +82,41 @@ namespace WebApi_Test
             var websocket = httpContext.WebSockets;//获取一个对象，该对象管理此请求的 WebSocket 连接的建立。
             //return Task.CompletedTask;
             await _next(httpContext);
+        }
+    }
+
+    public class AsyncExceptionFilter : IAsyncExceptionFilter
+    {
+        IWebHostEnvironment _environment;
+
+        public AsyncExceptionFilter(IWebHostEnvironment env)
+        {
+            _environment = env;
+        }
+
+        public Task OnExceptionAsync(ExceptionContext context)
+        {
+            //异常信息
+            //context.ActionDescriptor
+            //指示异常是否被处理，若已被处理，则不再向其他IAsyncExceptionFilter传递
+            //context.ExceptionHandled
+            //Action相应信息
+            //context.Result
+
+            string msg;
+            if(_environment.IsDevelopment())
+            {
+                msg= context.Exception.Message;
+            }
+            else
+            {
+                msg = "服务器发生异常";
+            }
+            ObjectResult result = new ObjectResult(new { code = 500, message = msg });
+            context.Result = result;
+            context.ExceptionHandled = true;
+
+            return Task.CompletedTask;
         }
     }
 }
