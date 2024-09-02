@@ -10,7 +10,6 @@ namespace ThreadSynchronization_Test
     {
         public static void Test()
         {
-            ManualResetEventSlim
             Semaphore pool = new Semaphore(0, 3);
             var padding = 0;
 
