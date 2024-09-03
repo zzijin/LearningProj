@@ -6,9 +6,8 @@ namespace ThreadSynchronization_Test
     {
         static void Main(string[] args)
         {
-            var t1 = typeof(string);
-            var t2 = typeof(string);
-            var rs = object.ReferenceEquals(t1, t2);
+            BarrierTest.BarrierSample2();
+
             //SemaphoreTest.Test();
             //int x = 0;
             //Task.Run(() =>
