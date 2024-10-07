@@ -12,6 +12,10 @@ namespace OptimizedReflection
     {
         static void Main(string[] args)
         {
+            //使用表达式树或EMIT 生成用于设置属性值的动态方法 的封装请查看ReflectionOptimizationHelper静态类
+
+            //以下代码为使用各种方法对 设置指定属性值10000*10000次 的性能测试
+
             AInfo aInfo;
             int count_1 = 10000;
             int count_2 = 10000;
@@ -286,6 +290,7 @@ namespace OptimizedReflection
             }
 
             //使用字典缓存EMIT生成的动态方法
+            //将创建的动态方法绑定到对象
             Dictionary<string, Delegate> cache_emit_bing_delegates = new Dictionary<string, Delegate>();
             public void SetParamValue_EMIT_1<T>(string a, T value)
             {
