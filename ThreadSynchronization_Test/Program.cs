@@ -6,7 +6,7 @@ namespace ThreadSynchronization_Test
     {
         static void Main(string[] args)
         {
-            BarrierTest.BarrierSample2();
+            //BarrierTest.BarrierSample2();
 
             //SemaphoreTest.Test();
             //int x = 0;
@@ -24,6 +24,7 @@ namespace ThreadSynchronization_Test
 
             //    }
             //});
+            Console.WriteLine("RunOver");
             Console.ReadLine();
         }
 
