@@ -36,7 +36,7 @@ namespace AutoSetProperty
         {
             // Register the attribute source
             context.RegisterForPostInitialization((i) => i.AddSource("AutoNotifyAttribute.g.cs", attributeText));
-            
+
             // Register a syntax receiver that will be created for each generation pass
             context.RegisterForSyntaxNotifications(() => new SyntaxReceiver());
         }
@@ -57,6 +57,7 @@ namespace AutoSetProperty
                     .ToList();
 
                 var sourceBuilder = new StringBuilder();
+
                 sourceBuilder.AppendLine($"namespace {namespaceName}");
                 sourceBuilder.AppendLine("{");
                 sourceBuilder.AppendLine($"    public partial class {className}");
@@ -91,6 +92,7 @@ namespace AutoSetProperty
         class SyntaxReceiver : ISyntaxContextReceiver
         {
             public List<ClassDeclarationSyntax> CandidateClasses { get; } = new List<ClassDeclarationSyntax>();
+
 
             public void OnVisitSyntaxNode(GeneratorSyntaxContext context)
             {
